@@ -1,0 +1,23 @@
+import pymysql
+
+def update_database(good, bad, module_number):
+    cnx = pymysql.connect(user='joomlauser', password='joomlapassword', host='127.0.0.1', database='genie')
+    cursor = cnx.cursor()
+    ratio = '\\ \'{0}\\ \',\\ \'{1}\\ \''.format(good,bad)
+    first_grab = ("SELECT params FROM r2snk_modules WHERE id = \'" + module_number + " \';")
+    data_update = ("UPDATE r2snk_modules SET params= %s WHERE (id=" + module_number + ");")
+    cursor.execute(first_grab)
+    dict = cursor.fetchall()[0][0]
+    next = ((dict.split('labelsData'))[1].split('seriesData')[0]).split('\'')
+    next[1]=good
+    next[3]=bad
+    next1 = "\'".join(next)
+    new_data = dict.split('labelsData')[0] + 'labelsData' + next1 + 'seriesData' +  dict.split('labelsData')[1].split('seriesData')[1]
+    cursor.execute(data_update, new_data)
+    cnx.commit()
+    cursor.close()
+    cnx.close()
+    return 0
+
+
+print(update_database('85','10', '445'))
